@@ -4,20 +4,19 @@ This repository contains solutions to a four-part clinical programming coding as
 ## Repository Structure
 
 Coding task/
-│
-├── question_1_sdtm/
-│   ├── data_in/
-│
-├── question_2_adam/
-│   
-├── question_3_tlg/
-│   ├── output/
-│   
-├── question_4_llm/
-│   ├── data_in/
-│   
-├── Coding task.Rproj
-└── README.md
+- question_1_sdtm/
+  data_in/
+
+- question_2_adam/
+
+- question_3_tlg/
+  output/
+
+- question_4_llm/
+  data_in/
+
+- Coding task.Rproj
+- README.md
 
 Task 1 – SDTM DS Domain Creation
 
