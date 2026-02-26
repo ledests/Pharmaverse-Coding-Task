@@ -1,0 +1,512 @@
+condition = !is.na(AESTDTC),
+set_values_to = exprs(
+LSTALVDT = convert_dtc_to_dt(AESTDTC, highest_imputation = "M"),
+seq = AESEQ
+),
+),
+event(
+dataset_name = "ds",
+order = exprs(DSSTDTC, DSSEQ),
+condition = !is.na(DSSTDTC),
+set_values_to = exprs(
+LSTALVDT = convert_dtc_to_dt(DSSTDTC, highest_imputation = "M"),
+seq = DSSEQ
+),
+),
+event(
+dataset_name = "adsl",
+condition = !is.na(TRTEDT),
+set_values_to = exprs(LSTALVDT = TRTEDT, seq = 0),
+)
+),
+source_datasets = list(vs=vs, ae = ae, ds = ds, adsl = adsl),
+tmp_event_nr_var = event_nr,
+order = exprs(LSTALVDT, seq, event_nr),
+mode = "last", ## extract the last event
+new_vars = exprs(LSTALVDT)
+)
+colnames(adsl)
+rm(list=ls())
+library(metacore)
+library(metatools)
+library(pharmaverseraw)
+library(pharmaversesdtm)
+library(tidyverse)
+library(admiral)
+## reading input SDTM data
+dm <- pharmaversesdtm::dm
+vs <- pharmaversesdtm::vs
+ex <- pharmaversesdtm::ex
+ds <- pharmaversesdtm::ds
+ae <- pharmaversesdtm::ae
+## turning SAS blank strings into R NAs
+dm <- convert_blanks_to_na(dm)
+vs <- convert_blanks_to_na(vs)
+ex <- convert_blanks_to_na(ex)
+ds <- convert_blanks_to_na(ds)
+ae <- convert_blanks_to_na(ae)
+adsl <- dm %>%
+select(-DOMAIN)
+### reading exposure data
+ex_ext <- ex %>%
+derive_vars_dtm(
+dtc = EXSTDTC,
+new_vars_prefix = "EXST",
+) %>%
+derive_vars_dtm(
+dtc = EXENDTC,
+new_vars_prefix = "EXEN",
+time_imputation = "last"
+)
+adsl <- adsl %>%
+## deriving treatment start dates
+derive_vars_merged(
+dataset_add = ex_ext,
+## defining a valid dose (EXDOSE > 0) or (EXDOSE=0 and EXTRT contains placebo)
+filter_add = (EXDOSE > 0 |
+(EXDOSE == 0 &
+str_detect(EXTRT, "PLACEBO"))) & !is.na(EXSTDTM),
+new_vars = exprs(TRTSDTM = EXSTDTM, TRTSTMF = EXSTTMF),
+order = exprs(EXSTDTM, EXSEQ),
+mode = "first", ## first observation selected (first exposure record)
+by_vars = exprs(STUDYID, USUBJID)
+) %>%
+## deriving treatment end dates
+derive_vars_merged(
+dataset_add = ex_ext,
+filter_add = (EXDOSE > 0 |
+(EXDOSE == 0 &
+str_detect(EXTRT, "PLACEBO"))) & !is.na(EXENDTM),
+new_vars = exprs(TRTEDTM = EXENDTM, TRTETMF = EXENTMF),
+order = exprs(EXENDTM, EXSEQ),
+mode = "last", ## now, we would like to derive the last treatment end date
+by_vars = exprs(STUDYID, USUBJID)
+)
+adsl <- adsl %>%
+derive_vars_dtm_to_dt(source_vars = exprs(TRTSDTM, TRTEDTM))
+View(adsl)
+## grouping variables into the following categories
+## defining variables AGEGR9 and AGEGR9N (numerical category)
+agegr9_lookup <- exprs(
+~condition,            ~AGEGR9, ~AGEGR9N,
+is.na(AGE),          "Missing",        4,
+AGE < 18,                "<18",        1,
+between(AGE, 18, 50),  "18-50",        2,
+!is.na(AGE),             ">50",        3
+)
+adsl <- adsl %>%
+## deriving variables using admiral
+derive_vars_cat(
+definition = agegr9_lookup
+) %>%
+## defining ITTFL flag based on whether the variable ARM is missing or not
+mutate(
+ITTFL = if_else(!is.na(ARM), "Y", "N")
+)
+adsl <- adsl %>%
+derive_vars_extreme_event(
+by_vars = exprs(STUDYID, USUBJID),
+## list of events
+events = list(
+event(
+dataset_name = "vs",
+order = exprs(VSDTC, VSSEQ),
+condition = !is.na(VSSTRESN) & !is.na(VSSTRESC) & !is.na(VSDTC),
+set_values_to = exprs(
+LSTALVDT = convert_dtc_to_dt(VSDTC, highest_imputation = "M"),
+seq = VSSEQ
+),
+),
+event(
+dataset_name = "ae",
+order = exprs(AESTDTC, AESEQ),
+condition = !is.na(AESTDTC),
+set_values_to = exprs(
+LSTALVDT = convert_dtc_to_dt(AESTDTC, highest_imputation = "M"),
+seq = AESEQ
+),
+),
+event(
+dataset_name = "ds",
+order = exprs(DSSTDTC, DSSEQ),
+condition = !is.na(DSSTDTC),
+set_values_to = exprs(
+LSTALVDT = convert_dtc_to_dt(DSSTDTC, highest_imputation = "M"),
+seq = DSSEQ
+),
+),
+event(
+dataset_name = "adsl",
+condition = !is.na(TRTEDT),
+set_values_to = exprs(LSTALVDT = TRTEDT, seq = 0),
+)
+),
+source_datasets = list(vs=vs, ae = ae, ds = ds, adsl = adsl),
+tmp_event_nr_var = event_nr,
+order = exprs(LSTALVDT, seq, event_nr),
+mode = "last", ## extract the last event
+new_vars = exprs(LSTALVDT)
+)
+adsl
+adsl %>% view()
+ds %>% filter(is.na(DSSTDTC))
+ds %>% filter(is.na(AESTDTC))
+ae %>% filter(is.na(AESTDTC))
+vs %>% filter(!is.na(VSSTRESN) & !is.na(VSSTRESC) & !is.na(VSDTC))
+vs %>% filter(!(!is.na(VSSTRESN) & !is.na(VSSTRESC) & !is.na(VSDTC)))
+event(
+dataset_name = "vs",
+order = exprs(VSDTC, VSSEQ),
+condition = !is.na(VSSTRESN) & !is.na(VSSTRESC) & !is.na(VSDTC),
+set_values_to = exprs(
+LSTALVDT = convert_dtc_to_dt(VSDTC, highest_imputation = "M"),
+seq = VSSEQ
+)
+event(
+dataset_name = "vs",
+order = exprs(VSDTC, VSSEQ),
+condition = !is.na(VSSTRESN) & !is.na(VSSTRESC) & !is.na(VSDTC),
+set_values_to = exprs(
+LSTALVDT = convert_dtc_to_dt(VSDTC, highest_imputation = "M"),
+seq = VSSEQ
+),
+)
+?set_values_to
+?event
+source("~/Desktop/Coding task/Question 2/create_adsl.R")
+View(adsl)
+?event
+?exprs
+View(adsl)
+vs %>% filter(USUBJID=='01-701-1023')
+adsl %>% filter(USUBJID=='01-701-1023')
+ae %>% filter(USUBJID=='01-701-1023') %>% view()
+ds %>% filter(USUBJID=='01-701-1023') %>% view()
+View(adsl)
+vs %>% filter(USUBJID=='01-701-1023') %>% view()
+?convert_dtc_to_dt
+View(adsl)
+source("~/Desktop/Coding task/Question 2/create_adsl.R")
+View(adsl)
+adsl <- adsl %>%
+derive_vars_extreme_event(
+by_vars = exprs(STUDYID, USUBJID),
+## list of events
+events = list(
+event(
+dataset_name = "vs",
+order = exprs(VSDTC, VSSEQ),
+condition = !is.na(VSSTRESN) & !is.na(VSSTRESC) & !is.na(VSDTC),
+mode='last',
+set_values_to = exprs(
+LSTALVDT = convert_dtc_to_dt(VSDTC, highest_imputation = "M"),
+seq = VSSEQ
+),
+),
+event(
+dataset_name = "ae",
+order = exprs(AESTDTC, AESEQ),
+condition = !is.na(AESTDTC),
+mode='last',
+set_values_to = exprs(
+LSTALVDT = convert_dtc_to_dt(AESTDTC, highest_imputation = "M"),
+seq = AESEQ
+),
+),
+event(
+dataset_name = "ds",
+order = exprs(DSSTDTC, DSSEQ),
+condition = !is.na(DSSTDTC),
+mode='last',
+set_values_to = exprs(
+LSTALVDT = convert_dtc_to_dt(DSSTDTC, highest_imputation = "M"),
+seq = DSSEQ
+),
+),
+event(
+dataset_name = "adsl",
+condition = !is.na(TRTEDT),
+set_values_to = exprs(
+LSTALVDT = TRTEDT,
+seq = 0),
+)
+),
+source_datasets = list(vs=vs, ae = ae, ds = ds, adsl = adsl),
+tmp_event_nr_var = event_nr,
+order = exprs(LSTALVDT, seq, event_nr),
+mode = "last", ## extract the last event
+new_vars = exprs(LSTALVDT)
+)
+rm(list=ls())
+library(gtsummary)
+library(pharmaverseraw)
+library(pharmaversesdtm)
+library(tidyverse)
+library(pharmaverseadam)
+library(pharmaverseadam)
+library(tidyverse)
+adae_data <- pharmaverseadam::adae
+adae_data %>% count(AESEV)
+colnames(adae_data)
+adae_data %>% count(ARM)
+adae_data %>%
+ggplot(aes(x=ARM,color=AESEV))+
+geom_bar()
+adae_data %>%
+ggplot(aes(x=ARM,fill=AESEV))+
+geom_bar()
+adae_data %>%
+ggplot(aes(x=ARM,fill=AESEV))+
+geom_bar()+
+labs(x='Treatment Arm',y='Severity/Intensity')
+adae_data %>%
+ggplot(aes(x=ARM,fill=AESEV))+
+geom_bar()+
+labs(x='Treatment Arm',fill='Severity/Intensity')
+adae_data %>%
+ggplot(aes(x=ARM,fill=AESEV))+
+geom_bar()+
+labs(x='Treatment Arm',
+y='AE severity distribution by treatment',
+fill='Severity/Intensity')
+adae_data %>%
+ggplot(aes(x=ARM,fill=AESEV))+
+geom_bar()+
+labs(x='Treatment Arm',
+y='AE severity distribution by treatment',
+fill='Severity/Intensity',
+title='AE severity distribution by treatment')
+adae_data %>% count(AETERM)
+adae_data %>% count(USUBJID)
+n_total <- nrow(adae_data)
+ae_vars_ci <- adae_data %>%
+group_by(AETERM) %>%
+summarise(
+events = n(),  # simply count rows for that AE
+.groups = "drop"
+) %>%
+mutate(
+n = n_total,
+incidence = events / n,
+se = sqrt(incidence * (1 - incidence) / n),
+lower = pmax(0, incidence - 1.96 * se),
+upper = pmin(1, incidence + 1.96 * se)
+)
+View(ae_vars_ci)
+View(ae_vars_ci)
+ggplot(ae_vars_ci, aes(x = incidence, y = AETERM)) +
+geom_point(size = 3) +
+geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.2)
+ae_vars_ci
+ae_vars_ci %>% arrange(desc(incidence))
+ae_vars_ci <- adae_data %>%
+group_by(AETERM) %>%
+summarise(
+events = n(),  # simply count rows for that AE
+.groups = "drop"
+) %>%
+mutate(
+n = n_total,
+incidence = events / n * 100,
+se = sqrt(incidence * (1 - incidence) / n) * 100,
+lower = pmax(0, incidence - 1.96 * se),
+upper = pmin(100, incidence + 1.96 * se)
+)
+ae_vars_ci %>%
+arrange(desc(incidence))
+84/1191*100
+adae_data
+adae_data %>% count(USUBJID)
+adae_data %>% count(USUBJID,AETERM)
+pharmaverseadam::adae
+n_total <- n_distinct(adae_data$USUBJID)
+n_total <- n_distinct(adae_data$USUBJID)
+ae_vars_ci <- adae_data %>%
+group_by(AETERM) %>%
+summarise(
+events = n_distinct(USUBJID),  # simply count rows for that AE
+.groups = "drop"
+) %>%
+mutate(
+n = n_total,
+incidence = events / n * 100,
+se = sqrt(incidence * (1 - incidence) / n) * 100,
+lower = pmax(0, incidence - 1.96 * se),
+upper = pmin(100, incidence + 1.96 * se)
+)
+View(ae_vars_ci)
+ae_vars_ci <- adae_data %>%
+group_by(AETERM) %>%
+summarise(
+events = n_distinct(USUBJID),  # simply count rows for that AE
+.groups = "drop"
+) %>%
+mutate(
+n = n_total,
+incidence = events / n * 100,
+se = sqrt((events / n) * (1 - events / n) / n) * 100,
+lower = pmax(0, incidence - 1.96 * se),
+upper = pmin(100, incidence + 1.96 * se)
+)
+ae_vars_ci %>%
+arrange(desc(incidence))
+View(ae_vars_ci)
+ae_vars_ci %>%
+arrange(desc(incidence)) %>%
+slice(1:10)
+ae_vars_ci %>%
+arrange(desc(incidence)) %>%
+slice(1:10) %>%
+ggplot(aes(x = incidence, y = AETERM)) +
+geom_point(size = 3) +
+geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.2) +
+ylim(0, NA) +
+ylab("Incidence Rate") +
+xlab("Adverse Event") +
+theme_minimal()
+ae_vars_ci %>%
+arrange(desc(incidence)) %>%
+slice(1:10) %>%
+ggplot(aes(x = incidence, y = AETERM)) +
+geom_point(size = 3)
+ae_vars_ci %>%
+arrange(desc(incidence)) %>%
+slice(1:10) %>%
+ggplot(aes(x = incidence, y = AETERM)) +
+geom_point(size = 3) +
+geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.2)
+ae_vars_ci %>%
+arrange(desc(incidence)) %>%
+slice(1:10) %>%
+ggplot(aes(x = incidence, y = AETERM)) +
+geom_point(size = 3) +
+geom_errorbar(aes(xmin = lower, xmax = upper), width = 0.2)
+ae_vars_ci %>%
+arrange(desc(incidence)) %>%
+slice(1:10) %>%
+ggplot(aes(x = incidence, y = reorder(AETERM, incidence))) +
+geom_point(size = 3) +
+geom_errorbar(aes(xmin = lower, xmax = upper), width = 0.2)
+ae_vars_ci %>%
+arrange(desc(incidence)) %>%
+slice(1:10) %>%
+ggplot(aes(x = incidence, y = reorder(AETERM, incidence))) +
+geom_point(size = 3) +
+geom_errorbar(aes(xmin = lower, xmax = upper), width = 0.2) +
+labs(x='Percentage of patients (%)',y='')
+ae_vars_ci %>%
+arrange(desc(incidence)) %>%
+slice(1:10) %>%
+ggplot(aes(x = incidence, y = reorder(AETERM, incidence))) +
+geom_point(size = 3) +
+geom_errorbar(aes(xmin = lower, xmax = upper), width = 0.2) +
+labs(x='Percentage of patients (%)',y='',
+title='Top 10 Most Frequent Adverse Events',
+subtitle='n = 225 subjects; 95% Clopper-Pearson CIs')
+ae_vars_ci %>%
+arrange(desc(incidence)) %>%
+slice(1:10) %>%
+ggplot(aes(x = incidence, y = reorder(AETERM, incidence))) +
+geom_point(size = 3) +
+geom_errorbar(aes(xmin = lower, xmax = upper), width = 0.2) +
+scale_x_continuous(labels = function(x) paste0(round(x,1), "%")) +
+labs(x='Percentage of patients (%)',y='',
+title='Top 10 Most Frequent Adverse Events',
+subtitle='n = 225 subjects; 95% Clopper-Pearson CIs')
+round(51,1)
+adae_data %>%
+## computing incidence for each adverse event
+group_by(AETERM) %>%
+summarise(
+events = n_distinct(USUBJID),
+.groups = "drop"
+)
+?pmax
+rm(list=ls())
+library(gtsummary)
+library(pharmaverseraw)
+library(pharmaversesdtm)
+library(tidyverse)
+adae_data <- pharmaverseadam::adae
+adsl_data <- pharmaverseadam::adsl
+adae %>%
+filter(TRTEMFL=='Y')
+adae %>% count(TRTEMFL)
+colnames(adae)
+adae %>%
+filter(TRTEMFL=='Y') %>%
+tbl_hierarchical(
+variables = c(AETERM),
+by = ACTARM,
+id = USUBJID,
+denominator = adsl,
+overall_row = TRUE,
+label = "..ard_hierarchical_overall.." ~ "Any SAE"
+)
+library(gtsummary)
+install.packages('gtsummary')
+install.packages('xfun')
+rm(list=ls())
+library(gtsummary)
+library(pharmaverseraw)
+library(pharmaversesdtm)
+library(tidyverse)
+adae_data <- pharmaverseadam::adae
+adsl_data <- pharmaverseadam::adsl
+adae_data %>%
+filter(TRTEMFL=='Y') %>%
+tbl_hierarchical(
+variables = c(AETERM),
+by = ACTARM,
+id = USUBJID,
+denominator = adsl_data,
+overall_row = TRUE,
+label = "..ard_hierarchical_overall.." ~ "Any SAE"
+)
+library(admiral)
+detach("package:admiral", unload = TRUE)
+library(admiral)
+detach("package:admiral", unload = TRUE)
+library(gt)
+detach("package:gt", unload = TRUE)
+library(admiral)
+detach("package:admiral", unload = TRUE)
+rm(list=ls())
+rm(list=ls())
+library(metacore)
+library(metatools)
+library(pharmaverseraw)
+library(pharmaversesdtm)
+library(tidyverse)
+library(admiral)
+rm(list=ls())
+library(metacore)
+library(metatools)
+library(pharmaverseraw)
+library(pharmaversesdtm)
+library(tidyverse)
+library(admiral)
+update.packages(ask = FALSE, checkBuilt = TRUE)
+remove.packages("admiral", lib="~/Library/R/arm64/4.2/library")
+install.packages(admiral)
+install.packages("admiral")
+rm(list=ls())
+library(metacore)
+library(metatools)
+library(pharmaverseraw)
+library(pharmaversesdtm)
+library(tidyverse)
+library(admiral)
+library(admiraldev)
+detach("package:admiraldev", unload = TRUE)
+library(cards)
+detach("package:cards", unload = TRUE)
+remove.packages("admiraldev", lib="~/Library/R/arm64/4.2/library")
+library(yaml, lib.loc = "/Library/Frameworks/R.framework/Versions/4.2-arm64/Resources/library")
+detach("package:yaml", unload = TRUE)
+library(admiral)
+remove.packages("xfun", lib="/Library/Frameworks/R.framework/Versions/4.2-arm64/Resources/library")
+install.packages('admiral')
+install.packages('admiraldev')
+install.packages(xfun)
+install.packages('xfun')

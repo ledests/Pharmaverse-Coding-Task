@@ -1,0 +1,54 @@
+dates <- c(
+  "2019-07-18T15:25:40",
+  "2019-07-18T15:25",
+  "2019-07-18T15",
+  "2019-07-18",
+  "2019-02",
+  "2019",
+  "2019",
+  "2019---07",
+  ""
+)
+
+
+impute_dtc_dtm(
+  dtc = c(
+    "2019-07-18T15:25:40",
+    "2019-07-18T15:25",
+    "2019-07-18T15",
+    "2019-07-18",
+    "2019-02",
+    "2019",
+    "2019",
+    "2019---07",
+    ""
+  ),
+  highest_imputation = "h"
+)
+
+
+impute_dtc_dtm(dtc="2019-07-18",highest_imputation = "h")
+  
+impute_dtc_dtm(dtc="2019-07-18")
+
+
+
+data.frame(x=c('2024-10-20','2019-07-18T15:25','2019-07-18T15:25')) %>%
+  derive_vars_dtm(
+    dtc = x,
+    new_vars_prefix = "EXST"#,
+    #highest_imputation="h",
+    #time_imputation='first',
+    #ignore_seconds_flag=F
+  )
+
+gt::rx_adsl
+
+
+
+vs %>% filter(USUBJID=='01-701-1023') %>% view()
+ds %>% filter(USUBJID=='01-701-1023') %>% view()#2013-02-18
+ae %>% filter(USUBJID=='01-701-1023') %>% view()
+adsl %>% filter(USUBJID=='01-701-1023') 
+
+## 	2012-08-26

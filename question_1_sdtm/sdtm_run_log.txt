@@ -1,0 +1,44 @@
+Program started: 1772117453 
+ℹ These terms could not be mapped per the controlled terminology: "Ambul Ecg Removal", "Unscheduled 6.1", "Unscheduled 1.1", "Unscheduled 5.1", "Unscheduled 4.1", "Unscheduled 8.2", and "Unscheduled 13.1".
+  codelist_code term_code term_value     collected_value term_preferred_term term_synonyms
+1      VISITNUM  VISITNUM        3.1     Unscheduled 3.1                                  
+2      VISITNUM  VISITNUM        3.5 Ambul ECG Placement                                  
+3      VISITNUM  VISITNUM          6   Ambul ECG Removal                                  
+# A tibble: 19 × 2
+   VISITNUM              n
+   <chr>             <int>
+ 1 1                    57
+ 2 10                   33
+ 3 11                   27
+ 4 12                   14
+ 5 13                  219
+ 6 201                  37
+ 7 3                   254
+ 8 4                    46
+ 9 5                    27
+10 7                    42
+11 8                    31
+12 9                    51
+13 AMBUL ECG REMOVAL     4
+14 UNSCHEDULED 1.1       2
+15 UNSCHEDULED 13.1      1
+16 UNSCHEDULED 4.1       1
+17 UNSCHEDULED 5.1       1
+18 UNSCHEDULED 6.1       1
+19 UNSCHEDULED 8.2       2
+# A tibble: 850 × 12
+   STUDYID      DOMAIN USUBJID     DSSEQ DSTERM                DSDECOD    DSCAT VISITNUM VISIT DSDTC DSSTDTC    DSSTDY
+   <chr>        <chr>  <chr>       <int> <chr>                 <chr>      <chr>    <dbl> <chr> <iso> <date>      <int>
+ 1 CDISCPILOT01 DS     01-701-1015     1 RANDOMIZED            RANDOMIZED PROT…        3 BASE… 2014… 2014-01-02      1
+ 2 CDISCPILOT01 DS     01-701-1015     2 PROTOCOL COMPLETED    COMPLETED  DISP…       13 WEEK… 2014… 2014-07-02    182
+ 3 CDISCPILOT01 DS     01-701-1015     3 FINAL LAB VISIT       FINAL LAB… OTHE…       13 WEEK… 2014… 2014-07-02    182
+ 4 CDISCPILOT01 DS     01-701-1023     1 RANDOMIZED            RANDOMIZED PROT…        3 BASE… 2012… 2012-08-05      1
+ 5 CDISCPILOT01 DS     01-701-1023     2 ADVERSE EVENT         ADVERSE E… DISP…        5 WEEK… 2012… 2012-09-02     29
+ 6 CDISCPILOT01 DS     01-701-1023     3 FINAL LAB VISIT       FINAL LAB… OTHE…        5 WEEK… 2012… 2012-09-02     29
+ 7 CDISCPILOT01 DS     01-701-1023     4 FINAL RETRIEVAL VISIT FINAL RET… OTHE…      201 RETR… 2013… 2013-02-18    198
+ 8 CDISCPILOT01 DS     01-701-1028     1 RANDOMIZED            RANDOMIZED PROT…        3 BASE… 2013… 2013-07-19      1
+ 9 CDISCPILOT01 DS     01-701-1028     2 PROTOCOL COMPLETED    COMPLETED  DISP…       13 WEEK… 2014… 2014-01-14    180
+10 CDISCPILOT01 DS     01-701-1028     3 FINAL LAB VISIT       FINAL LAB… OTHE…       13 WEEK… 2014… 2014-01-14    180
+# ℹ 840 more rows
+# ℹ Use `print(n = ...)` to see more rows
+Program completed successfully: 1772117459 
