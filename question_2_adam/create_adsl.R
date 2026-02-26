@@ -148,6 +148,8 @@ adsl <- adsl %>%
 
 adsl
 
+save(adsl, file = "question_2_adam/output/adsl_output.RData")
+
 cat("Program completed successfully:", Sys.time(), "\n")
 
 sink(type = "message")

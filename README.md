@@ -6,8 +6,10 @@ This repository contains solutions to a four-part clinical programming coding as
 Coding task/
 - question_1_sdtm/
   data_in/
+  output/
 
 - question_2_adam/
+  output/
 
 - question_3_tlg/
   output/
@@ -21,17 +23,17 @@ Coding task/
 Task 1 – SDTM DS Domain Creation
 
 Script: question_1_sdtm/01_create_ds_domain.R
-Creates the DS domain using pharmaverse tooling and standard SDTM conventions.
+Creates the DS domain using pharmaverse tooling and standard SDTM conventions, output saved to question_1_sdtm_output/ds_domain_output.RData:
 
 Task 2 – ADaM ADSL Dataset
 
 Script: question_2_adam/create_adsl.R
-Constructs an ADSL dataset following CDISC ADaM standards using pharmaverse and admiral.
+Constructs an ADSL dataset following CDISC ADaM standards using pharmaverse and admiral, output saved to: question_2_adam/output/adsl_output.RData.
 
 Task 3 – TLF Generation
 
-Script 1: question_3_tlg/01_create_ae_summary_table.R – Generates AE summary tables
-Script 2: 02_create_visualizations.R – Produces visualizations of AE data
+Script 1: question_3_tlg/01_create_ae_summary_table.R – Generates AE summary tables (question_3_tlg/output/ae_summary_table.pdf)
+Script 2: 02_create_visualizations.R – Produces visualizations of AE data (question_3_tlg/output/ae_bar_plot.png and question_3_tlg/output/ae_ci_plot.png)
 
 Outputs saved to question_3_tlg/output/
 

@@ -1,4 +1,4 @@
-Program started: 1772117453 
+Program started: 1772126596 
 ℹ These terms could not be mapped per the controlled terminology: "Ambul Ecg Removal", "Unscheduled 6.1", "Unscheduled 1.1", "Unscheduled 5.1", "Unscheduled 4.1", "Unscheduled 8.2", and "Unscheduled 13.1".
   codelist_code term_code term_value     collected_value term_preferred_term term_synonyms
 1      VISITNUM  VISITNUM        3.1     Unscheduled 3.1                                  
@@ -41,4 +41,4 @@ Program started: 1772117453
 10 CDISCPILOT01 DS     01-701-1028     3 FINAL LAB VISIT       FINAL LAB… OTHE…       13 WEEK… 2014… 2014-01-14    180
 # ℹ 840 more rows
 # ℹ Use `print(n = ...)` to see more rows
-Program completed successfully: 1772117459 
+Program completed successfully: 1772126599 

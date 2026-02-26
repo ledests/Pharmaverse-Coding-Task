@@ -154,6 +154,8 @@ for (v in colnames(ds_final)) {
 
 ds_final
 
+save(ds_final, file = "question_1_sdtm/output/ds_domain_output.RData")
+
 cat("Program completed successfully:", Sys.time(), "\n")
 
 sink(type = "message")

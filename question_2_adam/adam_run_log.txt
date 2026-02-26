@@ -1,4 +1,4 @@
-Program started: 1772117494 
+Program started: 1772126559 
 # A tibble: 306 × 35
    STUDYID   USUBJID SUBJID RFSTDTC RFENDTC RFXSTDTC RFXENDTC RFICDTC RFPENDTC DTHDTC DTHFL SITEID BRTHDTC   AGE AGEU 
    <chr>     <chr>   <chr>  <chr>   <chr>   <chr>    <chr>    <chr>   <chr>    <chr>  <chr> <chr>  <chr>   <dbl> <chr>
@@ -17,4 +17,4 @@ Program started: 1772117494
 #   COUNTRY <chr>, DMDTC <chr>, DMDY <dbl>, TRTSDTM <dttm>, TRTSTMF <chr>, TRTEDTM <dttm>, TRTETMF <chr>,
 #   TRTSDT <date>, TRTEDT <date>, AGEGR9 <chr>, AGEGR9N <dbl>, ITTFL <chr>, LSTALVDT <date>
 # ℹ Use `print(n = ...)` to see more rows
-Program completed successfully: 1772117499 
+Program completed successfully: 1772126564 
