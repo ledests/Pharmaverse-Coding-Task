@@ -23,12 +23,12 @@ Coding task/
 Task 1 – SDTM DS Domain Creation
 
 Script: question_1_sdtm/01_create_ds_domain.R
-Creates the DS domain using pharmaverse tooling and standard SDTM conventions, output saved to question_1_sdtm_output/ds_domain_output.RData:
+Creates the DS domain using pharmaverse tooling and standard SDTM conventions, output (ds_final) saved to question_1_sdtm_output/ds_domain_output.RData. 
 
 Task 2 – ADaM ADSL Dataset
 
 Script: question_2_adam/create_adsl.R
-Constructs an ADSL dataset following CDISC ADaM standards using pharmaverse and admiral, output saved to: question_2_adam/output/adsl_output.RData.
+Constructs an ADSL dataset following CDISC ADaM standards using pharmaverse and admiral, output (adsl) saved to: question_2_adam/output/adsl_output.RData.
 
 Task 3 – TLF Generation
 
