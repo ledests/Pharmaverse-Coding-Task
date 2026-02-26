@@ -40,7 +40,7 @@ Task 4 – LLM Clinical Assistant Prototype
 Script 1: question_4_llm/lm_clinical_assistant.py – LLM-based query processor (using Gemini AI)
 Script 2: question_4_llm/llm_test_script.py – Runs example queries
 
-The example output from Script 2 is saved to question_4_llm/llm_sample_output.html 
+The example output from Script 2 is saved to question_4_llm/llm_sample_output.html (also saved as a PDF)
 
 ## Running tasks 1-3
 
